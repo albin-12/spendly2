@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Spendly">
+<meta name="description" content="Premium expense tracker">
+<title>Spendly</title>
+
+<!-- Inline manifest via data URI for self-hosting -->
+<link rel="manifest" id="manifest-placeholder">
+
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════
+   SPENDLY — AMOLED ULTRA PREMIUM
+   ═══════════════════════════════════════════════════ */
+:root {
+  --void:   #000000;
+  --ink1:   #080808;
+  --ink2:   #101010;
+  --ink3:   #181818;
+  --ink4:   #222222;
+  --ink5:   #2c2c2c;
+  --line:   rgba(255,255,255,0.06);
+  --line2:  rgba(255,255,255,0.10);
+  --line3:  rgba(255,255,255,0.16);
+  --text:   #ffffff;
+  --text2:  rgba(255,255,255,0.55);
+  --text3:  rgba(255,255,255,0.28);
+  --emerald: #00F5A0;
+  --emerald2:#00C97E;
+  --coral:  #FF4D6D;
+  --coral2: #FF2244;
+  --gold:   #FFD60A;
+  --sky:    #38BDF8;
+  --lavender:#B57BEE;
+  --safe-t: env(safe-area-inset-top,0px);
+  --safe-b: env(safe-area-inset-bottom,0px);
+  --safe-l: env(safe-area-inset-left,0px);
+  --safe-r: env(safe-area-inset-right,0px);
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+}
+
+/* ── RESET ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--void);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100dvh;overflow-x:hidden;
+  padding-bottom:calc(76px + var(--safe-b));
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select{font-family:inherit;color:inherit;}
+::-webkit-scrollbar{display:none;}
+
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* ═══════════════════════════════════════════════════
+   SPLASH
+   ═══════════════════════════════════════════════════ */
+#splash{
+  position:fixed;inset:0;background:var(--void);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;
+  transition:opacity 0.7s cubic-bezier(0.4,0,0.2,1),transform 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+#splash.gone{opacity:0;transform:scale(1.06);pointer-events:none;}
+.splash-logo-wrap{position:relative;margin-bottom:32px;}
+.splash-orb{
+  width:96px;height:96px;border-radius:32px;
+  background:linear-gradient(135deg,#00F5A0,#38BDF8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;
+  box-shadow:0 0 60px rgba(0,245,160,0.35),0 0 120px rgba(0,245,160,0.12);
+  animation:orbPulse 2s ease-in-out infinite;
+}
+@keyframes orbPulse{
+  0%,100%{box-shadow:0 0 60px rgba(0,245,160,0.35),0 0 120px rgba(0,245,160,0.12);}
+  50%{box-shadow:0 0 80px rgba(0,245,160,0.5),0 0 160px rgba(0,245,160,0.2);}
+}
+.splash-name{font-size:32px;font-weight:800;letter-spacing:-1.5px;margin-bottom:6px;}
+.splash-name span{color:var(--emerald);}
+.splash-tag{font-size:13px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.splash-bar-wrap{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:120px;}
+.splash-bar{height:2px;background:var(--ink3);border-radius:2px;overflow:hidden;}
+.splash-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--emerald),var(--sky));border-radius:2px;animation:loadBar 1.4s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes loadBar{to{width:100%;}}
+
+/* ═══════════════════════════════════════════════════
+   INSTALL BANNER
+   ═══════════════════════════════════════════════════ */
+#installBanner{
+  display:none;
+  background:linear-gradient(135deg,rgba(0,245,160,0.12),rgba(56,189,248,0.08));
+  border:1px solid rgba(0,245,160,0.2);
+  border-radius:var(--r-lg);margin:0 16px 12px;
+  padding:14px 16px;
+  flex-direction:row;align-items:center;gap:12px;
+  animation:slideDown 0.4s ease;
+}
+#installBanner.show{display:flex;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.banner-icon{font-size:24px;flex-shrink:0;}
+.banner-text{flex:1;}
+.banner-title{font-size:13px;font-weight:700;color:var(--emerald);}
+.banner-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.banner-btn{
+  background:var(--emerald);color:#000;
+  padding:8px 14px;border-radius:10px;
+  font-size:12px;font-weight:800;
+  white-space:nowrap;flex-shrink:0;
+  transition:transform 0.15s,opacity 0.15s;
+}
+.banner-btn:active{transform:scale(0.95);opacity:0.85;}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════ */
+.header{
+  padding:calc(var(--safe-t) + 14px) 20px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  background:rgba(0,0,0,0.82);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  border-bottom:1px solid var(--line);
+}
+.logo{font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1;}
+.logo b{color:var(--emerald);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.month-pill{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);
+  background:var(--ink2);border:1px solid var(--line2);
+  padding:5px 10px;border-radius:20px;letter-spacing:0.5px;
+}
+.notif-btn{
+  width:34px;height:34px;border-radius:11px;
+  background:var(--ink2);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+
+/* ═══════════════════════════════════════════════════
+   PAGES
+   ═══════════════════════════════════════════════════ */
+.page{display:none;}
+.page.active{display:block;animation:pgIn 0.38s cubic-bezier(0.22,1,0.36,1);}
+@keyframes pgIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══════════════════════════════════════════════════
+   HOME — HERO CARD
+   ═══════════════════════════════════════════════════ */
+.hero{
+  margin:12px 16px;
+  background:var(--ink1);
+  border:1px solid var(--line2);
+  border-radius:var(--r-xl);
+  padding:24px;
+  position:relative;overflow:hidden;
+}
+/* Ambient glow */
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,245,160,0.07) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,189,248,0.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-greeting{font-size:11px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.hero-label{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:500;}
+.hero-amount{
+  font-size:52px;font-weight:800;letter-spacing:-3px;
+  font-family:'JetBrains Mono',monospace;
+  line-height:1;margin-bottom:4px;
+  transition:color 0.4s;
+}
+.hero-change{font-size:12px;color:var(--text3);margin-bottom:20px;font-weight:500;}
+.hero-change span{font-weight:700;}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.h-stat{
+  background:var(--ink2);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:13px 14px;
+  position:relative;overflow:hidden;
+  transition:transform 0.15s;
+}
+.h-stat:active{transform:scale(0.97);}
+.h-stat-glow{
+  position:absolute;top:-20px;right:-20px;
+  width:60px;height:60px;border-radius:50%;opacity:0.08;
+}
+.h-stat-icon{font-size:18px;margin-bottom:8px;}
+.h-stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.h-stat-val{font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+
+/* ── BUDGET RING CARD ── */
+.budget-card{
+  margin:0 16px 12px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:16px 18px;
+  display:flex;align-items:center;gap:16px;
+}
+.ring-host{position:relative;width:64px;height:64px;flex-shrink:0;}
+.ring-host svg{transform:rotate(-90deg);}
+.ring-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;
+}
+.ring-info{flex:1;}
+.ring-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.ring-sub{font-size:11px;color:var(--text3);}
+.ring-track{height:3px;background:var(--ink3);border-radius:2px;margin-top:10px;overflow:hidden;}
+.ring-bar{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1),background 0.4s;}
+
+/* ── QUICK STATS ROW ── */
+.quick-row{display:flex;gap:8px;padding:0 16px;margin-bottom:12px;}
+.q-chip{
+  flex:1;background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:12px 10px;text-align:center;
+}
+.q-chip .qv{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.q-chip .ql{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-top:2px;}
+
+/* ── CATEGORY PILLS ── */
+.pill-scroll{display:flex;gap:7px;padding:0 16px;overflow-x:auto;margin-bottom:12px;}
+.cat-pill-btn{
+  flex-shrink:0;font-size:12px;font-weight:600;
+  padding:7px 14px;border-radius:99px;
+  border:1px solid var(--line2);background:transparent;color:var(--text2);
+  transition:all 0.22s cubic-bezier(0.4,0,0.2,1);white-space:nowrap;
+}
+.cat-pill-btn.on{
+  background:var(--emerald);border-color:var(--emerald);color:#000;
+  box-shadow:0 0 20px rgba(0,245,160,0.28);
+}
+
+/* ── SECTION ROW ── */
+.sec-row{padding:0 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.sec-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
+.sec-action{font-size:11px;color:var(--emerald);font-weight:700;}
+
+/* ── TRANSACTION CARDS ── */
+.tx-wrap{padding:0 16px;display:flex;flex-direction:column;gap:7px;}
+
+.tx-item{
+  display:flex;align-items:center;gap:13px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:14px 15px;
+  position:relative;overflow:hidden;
+  transition:transform 0.18s,background 0.18s,border-color 0.18s;
+  cursor:pointer;
+}
+.tx-item::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;border-radius:0 3px 3px 0;
+  transition:opacity 0.2s;
+}
+.tx-item.exp::before{background:var(--coral);}
+.tx-item.inc::before{background:var(--emerald);}
+.tx-item:active{transform:scale(0.975);background:var(--ink2);border-color:var(--line2);}
+
+.tx-icon-wrap{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;position:relative;
+}
+.tx-body{flex:1;min-width:0;}
+.tx-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.tx-sub{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+.tx-dot{width:3px;height:3px;border-radius:50%;background:var(--text3);}
+.tx-right{text-align:right;flex-shrink:0;}
+.tx-amt{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;margin-bottom:2px;}
+.tx-amt.pos{color:var(--emerald);}
+.tx-amt.neg{color:var(--coral);}
+.tx-time{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* ── EMPTY ── */
+.empty-wrap{text-align:center;padding:56px 24px;}
+.empty-anim{font-size:56px;margin-bottom:14px;animation:levitate 3s ease-in-out infinite;}
+@keyframes levitate{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-10px) rotate(5deg);}}
+.empty-h{font-size:20px;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px;}
+.empty-p{font-size:13px;color:var(--text3);line-height:1.5;}
+
+/* ═══════════════════════════════════════════════════
+   STATS PAGE
+   ═══════════════════════════════════════════════════ */
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px;margin-bottom:12px;}
+.sc{
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:16px;
+  animation:fadeUp 0.4s ease both;
+  position:relative;overflow:hidden;
+}
+.sc::before{content:'';position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;opacity:0.06;}
+.sc .sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.sc .sv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.sc .ss{font-size:10px;color:var(--text3);margin-top:3px;}
+
+/* Bar chart */
+.chart-card{
+  margin:0 16px 12px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px;
+}
+.chart-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+.bars-host{display:flex;align-items:flex-end;gap:5px;height:90px;}
+.bar-c{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.bar-b{
+  width:100%;border-radius:5px 5px 0 0;
+  min-height:4px;position:relative;
+  transition:height 1s cubic-bezier(0.4,0,0.2,1);
+}
+.bar-b.is-today{filter:brightness(1.3);}
+.bar-l{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* Donut */
+.donut-card{
+  margin:0 16px 12px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px;
+}
+.donut-row{display:flex;align-items:center;gap:18px;}
+.d-legend{flex:1;display:flex;flex-direction:column;gap:9px;}
+.d-row{display:flex;align-items:center;gap:8px;}
+.d-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.d-name{font-size:12px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.d-pct{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text2);}
+
+/* Trend Line */
+.trend-card{
+  margin:0 16px 12px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px;overflow:hidden;
+}
+.trend-svg{width:100%;overflow:visible;}
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS PAGE
+   ═══════════════════════════════════════════════════ */
+.settings-block{
+  margin:0 16px 10px;
+  background:var(--ink1);border:1px solid var(--line);
+  border-radius:var(--r-lg);overflow:hidden;
+}
+.s-row{
+  display:flex;align-items:center;gap:14px;
+  padding:15px 16px;border-bottom:1px solid var(--line);
+}
+.s-row:last-child{border:none;}
+.s-ico{
+  width:36px;height:36px;border-radius:11px;
+  background:var(--ink2);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
+}
+.s-info{flex:1;}
+.s-t{font-size:13px;font-weight:700;}
+.s-d{font-size:11px;color:var(--text3);margin-top:1px;}
+.s-ctrl input,.s-ctrl select{
+  background:var(--ink2);border:1px solid var(--line2);
+  border-radius:10px;padding:8px 10px;
+  font-size:13px;color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  outline:none;width:105px;text-align:right;
+  -webkit-appearance:none;transition:border-color 0.2s;
+}
+.s-ctrl input:focus,.s-ctrl select:focus{border-color:var(--emerald);}
+.s-ctrl select{text-align:left;padding-right:8px;}
+.s-btn{
+  padding:8px 13px;border-radius:10px;font-size:12px;font-weight:700;
+  transition:transform 0.15s,opacity 0.15s;
+}
+.s-btn:active{transform:scale(0.95);opacity:0.8;}
+.s-btn-g{background:rgba(0,245,160,0.1);border:1px solid rgba(0,245,160,0.2);color:var(--emerald);}
+.s-btn-r{background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.2);color:var(--coral);}
+
+/* Install guide card */
+.guide-card{
+  margin:0 16px 16px;
+  border-radius:var(--r-lg);padding:20px;
+  background:linear-gradient(135deg,rgba(0,245,160,0.05),rgba(56,189,248,0.04));
+  border:1px solid rgba(0,245,160,0.12);
+}
+.guide-t{font-size:14px;font-weight:800;color:var(--emerald);margin-bottom:14px;letter-spacing:-0.3px;}
+.g-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+.g-num{
+  width:24px;height:24px;border-radius:8px;
+  background:var(--emerald);color:#000;
+  font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.g-txt{font-size:13px;color:var(--text2);line-height:1.55;padding-top:2px;}
+.g-txt b{color:var(--text);}
+.g-txt code{
+  background:var(--ink2);border:1px solid var(--line2);
+  padding:1px 5px;border-radius:5px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--emerald);
+}
+
+/* ═══════════════════════════════════════════════════
+   ADD SHEET (BOTTOM SHEET)
+   ═══════════════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  z-index:500;opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+  display:flex;align-items:flex-end;
+}
+.overlay.show{opacity:1;pointer-events:all;}
+.sheet{
+  width:100%;max-height:94dvh;overflow-y:auto;
+  background:var(--ink1);
+  border-radius:28px 28px 0 0;
+  border-top:1px solid var(--line2);
+  padding:0 20px calc(20px + var(--safe-b));
+  transform:translateY(100%);
+  transition:transform 0.42s cubic-bezier(0.22,1,0.36,1);
+}
+.overlay.show .sheet{transform:translateY(0);}
+.sheet-pill{width:40px;height:4px;background:var(--ink4);border-radius:2px;margin:13px auto 22px;}
+.sheet-title{font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:22px;}
+
+/* Type toggle */
+.type-tog{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.t-btn{
+  padding:14px;border-radius:var(--r-md);
+  border:1px solid var(--line2);background:var(--ink2);
+  font-size:13px;font-weight:700;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+.t-btn.exp-on{
+  background:rgba(255,77,109,0.1);border-color:var(--coral);
+  color:var(--coral);box-shadow:0 0 24px rgba(255,77,109,0.12);
+}
+.t-btn.inc-on{
+  background:rgba(0,245,160,0.1);border-color:var(--emerald);
+  color:var(--emerald);box-shadow:0 0 24px rgba(0,245,160,0.12);
+}
+
+/* Amount slab */
+.amt-slab{
+  background:var(--ink2);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px 20px;
+  text-align:center;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.amt-slab::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(0,245,160,0.03));
+  pointer-events:none;
+}
+.amt-cur{font-size:20px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;}
+.amt-num{
+  font-size:54px;font-weight:800;letter-spacing:-3px;
+  font-family:'JetBrains Mono',monospace;
+  transition:color 0.3s,transform 0.1s;
+  min-height:64px;display:flex;align-items:center;justify-content:center;
+}
+.amt-num.e{color:var(--coral);}
+.amt-num.i{color:var(--emerald);}
+.amt-tap{position:absolute;inset:0;z-index:1;}
+
+/* Numpad */
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px;}
+.n-btn{
+  padding:17px 10px;border-radius:var(--r-md);
+  background:var(--ink2);border:1px solid var(--line);
+  font-size:22px;font-weight:600;color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.1s,background 0.1s;
+  user-select:none;-webkit-user-select:none;
+}
+.n-btn:active{transform:scale(0.92);background:var(--ink3);}
+.n-btn.n-del{font-size:17px;color:var(--text2);}
+.n-btn.n-dot{font-size:26px;line-height:0.8;}
+.n-btn.n-zero{}
+
+/* Form fields */
+.f-group{margin-bottom:14px;}
+.f-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px;display:block;font-weight:600;}
+.f-inp{
+  width:100%;background:var(--ink2);border:1px solid var(--line2);
+  border-radius:var(--r-md);padding:14px 16px;
+  font-size:15px;color:var(--text);outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.f-inp:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(0,245,160,0.08);}
+.f-inp::placeholder{color:var(--text3);}
+
+/* Category grid */
+.cat-g{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:20px;}
+.c-btn{
+  padding:9px 4px;border-radius:var(--r-md);
+  background:var(--ink2);border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:all 0.2s;
+}
+.c-btn .ci{font-size:22px;}
+.c-btn .cn{font-size:9px;color:var(--text3);white-space:nowrap;overflow:hidden;width:100%;text-align:center;text-overflow:ellipsis;font-weight:500;}
+.c-btn.on{border-color:var(--emerald);background:rgba(0,245,160,0.07);box-shadow:0 0 14px rgba(0,245,160,0.1);}
+.c-btn.on .cn{color:var(--emerald);}
+
+/* Date quick chips */
+.date-chips{display:flex;gap:7px;margin-bottom:14px;}
+.d-chip{
+  padding:9px 14px;border-radius:99px;
+  background:var(--ink2);border:1px solid var(--line);
+  font-size:12px;font-weight:600;color:var(--text2);
+  transition:all 0.2s;white-space:nowrap;
+}
+.d-chip.on{background:rgba(0,245,160,0.08);border-color:var(--emerald);color:var(--emerald);}
+.d-inp{
+  flex:1;background:var(--ink2);border:1px solid var(--line);
+  border-radius:12px;padding:9px 12px;
+  font-size:12px;color:var(--text);outline:none;
+  font-family:'JetBrains Mono',monospace;
+  -webkit-appearance:none;
+}
+
+/* Note field */
+.note-row{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.note-ico{font-size:16px;color:var(--text3);}
+
+/* Submit */
+.add-btn{
+  width:100%;padding:18px;border-radius:var(--r-lg);
+  background:var(--emerald);color:#000;
+  font-size:16px;font-weight:800;letter-spacing:-0.3px;
+  border:none;cursor:pointer;
+  box-shadow:0 8px 32px rgba(0,245,160,0.3),0 2px 8px rgba(0,245,160,0.2);
+  transition:transform 0.15s,box-shadow 0.15s,opacity 0.15s;
+  position:relative;overflow:hidden;
+}
+.add-btn::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1),transparent);
+  pointer-events:none;
+}
+.add-btn:active{transform:scale(0.97);box-shadow:0 4px 16px rgba(0,245,160,0.2);}
+
+/* ═══════════════════════════════════════════════════
+   BOTTOM NAV
+   ═══════════════════════════════════════════════════ */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,0.9);
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  border-top:1px solid var(--line);
+  display:flex;padding-bottom:var(--safe-b);z-index:200;
+}
+.n-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:10px 0 8px;
+  background:none;color:var(--text3);
+  transition:color 0.2s;position:relative;
+}
+.n-tab.on{color:var(--emerald);}
+.n-tab.on::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:24px;height:2px;border-radius:2px;
+  background:var(--emerald);
+  box-shadow:0 0 10px var(--emerald);
+}
+.n-ico{font-size:23px;line-height:1;}
+.n-lbl{font-size:10px;font-weight:700;letter-spacing:0.2px;}
+
+/* FAB */
+.fab{
+  position:fixed;right:18px;
+  bottom:calc(84px + var(--safe-b));
+  width:56px;height:56px;border-radius:20px;
+  background:var(--emerald);color:#000;
+  font-size:30px;font-weight:300;
+  display:flex;align-items:center;justify-content:center;
+  border:none;z-index:300;
+  box-shadow:0 8px 32px rgba(0,245,160,0.4),0 2px 8px rgba(0,245,160,0.2);
+  transition:transform 0.18s cubic-bezier(0.4,0,0.2,1),box-shadow 0.18s;
+}
+.fab:active{transform:scale(0.9) rotate(45deg);box-shadow:0 4px 16px rgba(0,245,160,0.25);}
+
+/* ═══════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════ */
+.toast{
+  position:fixed;
+  bottom:calc(84px + var(--safe-b) + 14px);
+  left:50%;transform:translateX(-50%) translateY(14px);
+  background:var(--ink3);border:1px solid var(--line2);
+  border-radius:14px;padding:11px 20px;
+  font-size:13px;font-weight:600;white-space:nowrap;
+  opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;z-index:800;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══════════════════════════════════════════════════
+   SHARED UTILS
+   ═══════════════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.stagger-1{animation:fadeUp 0.4s ease 0.05s both;}
+.stagger-2{animation:fadeUp 0.4s ease 0.10s both;}
+.stagger-3{animation:fadeUp 0.4s ease 0.15s both;}
+.stagger-4{animation:fadeUp 0.4s ease 0.20s both;}
+
+/* Shine sweep on cards */
+@keyframes shine{
+  0%{background-position:-200% center;}
+  100%{background-position:200% center;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SPLASH ═══ -->
+<div id="splash">
+  <div class="splash-logo-wrap">
+    <div class="splash-orb">💸</div>
+  </div>
+  <div class="splash-name">Spend<span>ly</span></div>
+  <div class="splash-tag">Your money, refined</div>
+  <div class="splash-bar-wrap">
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  </div>
+</div>
+
+<!-- ═══ INSTALL BANNER ═══ -->
+<div id="installBanner">
+  <div class="banner-icon">📲</div>
+  <div class="banner-text">
+    <div class="banner-title">Install Spendly</div>
+    <div class="banner-sub">Add to home screen as an app</div>
+  </div>
+  <button class="banner-btn" id="installBtn">Install</button>
+</div>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="logo">Spend<b>ly</b></div>
+  <div class="header-right">
+    <div class="month-pill" id="mChip"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     HOME PAGE
+════════════════════════════════════════ -->
+<div class="page active" id="pg-home">
+
+  <!-- Hero -->
+  <div class="hero stagger-1">
+    <div class="hero-greeting" id="greeting">GOOD MORNING</div>
+    <div class="hero-label">Net Balance</div>
+    <div class="hero-amount" id="heroAmt">₹0</div>
+    <div class="hero-change" id="heroSub">No transactions this month</div>
+    <div class="hero-stats">
+      <div class="h-stat">
+        <div class="h-stat-glow" style="background:var(--emerald)"></div>
+        <div class="h-stat-icon">📥</div>
+        <div class="h-stat-lbl">Income</div>
+        <div class="h-stat-val" id="h-inc">₹0</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-glow" style="background:var(--coral)"></div>
+        <div class="h-stat-icon">📤</div>
+        <div class="h-stat-lbl">Expenses</div>
+        <div class="h-stat-val" id="h-exp">₹0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Ring -->
+  <div class="budget-card stagger-2" id="budCard" style="display:none">
+    <div class="ring-host">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="26" fill="none" stroke="var(--ink3)" stroke-width="6"/>
+        <circle cx="32" cy="32" r="26" fill="none" stroke="var(--emerald)" stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="163.4" stroke-dashoffset="163.4"
+          id="ringCircle"
+          style="transition:stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1),stroke 0.4s"/>
+      </svg>
+      <div class="ring-text" id="ringPct">0%</div>
+    </div>
+    <div class="ring-info">
+      <div class="ring-title" id="ringTitle">Monthly Budget</div>
+      <div class="ring-sub" id="ringSub">—</div>
+      <div class="ring-track"><div class="ring-bar" id="ringBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Quick stats chips -->
+  <div class="quick-row stagger-2" id="qRow">
+    <div class="q-chip"><div class="qv" id="q-txn">0</div><div class="ql">Transactions</div></div>
+    <div class="q-chip"><div class="qv" id="q-avg">₹0</div><div class="ql">Avg Spend</div></div>
+    <div class="q-chip"><div class="qv" id="q-day">₹0</div><div class="ql">Today</div></div>
+  </div>
+
+  <!-- Category filter -->
+  <div class="pill-scroll" id="pillScroll"></div>
+
+  <!-- Transactions -->
+  <div class="sec-row">
+    <span class="sec-title">Recent</span>
+    <button class="sec-action" onclick="goPage('stats')">Analytics →</button>
+  </div>
+  <div class="tx-wrap" id="txWrap"></div>
+
+  <div style="height:12px"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     STATS PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-stats">
+  <div style="padding:0 16px 14px;font-size:24px;font-weight:800;letter-spacing:-1px">Analytics</div>
+
+  <div class="stat-cards" id="statCards"></div>
+
+  <div class="chart-card stagger-2">
+    <div class="chart-lbl">7-Day Spending</div>
+    <div class="bars-host" id="barsHost"></div>
+    <div style="display:flex;gap:5px;margin-top:6px" id="barDays"></div>
+  </div>
+
+  <div class="donut-card stagger-3">
+    <div class="chart-lbl" style="margin-bottom:14px">Category Breakdown</div>
+    <div class="donut-row">
+      <svg width="100" height="100" viewBox="0 0 100 100" id="donutSvg" style="flex-shrink:0"></svg>
+      <div class="d-legend" id="dLegend"></div>
+    </div>
+  </div>
+
+  <div class="trend-card stagger-4">
+    <div class="chart-lbl" style="margin-bottom:12px">30-Day Trend</div>
+    <svg class="trend-svg" height="70" id="trendSvg" viewBox="0 0 300 70" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div style="height:12px"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SETTINGS PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-settings">
+  <div style="padding:0 16px 14px;font-size:24px;font-weight:800;letter-spacing:-1px">Settings</div>
+
+  <div class="settings-block">
+    <div class="s-row">
+      <div class="s-ico">💰</div>
+      <div class="s-info"><div class="s-t">Monthly Budget</div><div class="s-d">Track your spending limit</div></div>
+      <div class="s-ctrl"><input type="number" id="budInput" placeholder="10000" onchange="saveBudget()"></div>
+    </div>
+    <div class="s-row">
+      <div class="s-ico">🌐</div>
+      <div class="s-info"><div class="s-t">Currency</div><div class="s-d">Display symbol</div></div>
+      <div class="s-ctrl">
+        <select id="curSel" onchange="saveCur()">
+          <option value="₹">₹ INR</option>
+          <option value="$">$ USD</option>
+          <option value="€">€ EUR</option>
+          <option value="£">£ GBP</option>
+          <option value="¥">¥ JPY</option>
+        </select>
+      </div>
+    </div>
+    <div class="s-row">
+      <div class="s-ico">📁</div>
+      <div class="s-info"><div class="s-t">Export CSV</div><div class="s-d">Download all transactions</div></div>
+      <div class="s-ctrl"><button class="s-btn s-btn-g" onclick="exportCSV()">Export</button></div>
+    </div>
+    <div class="s-row">
+      <div class="s-ico">🗑️</div>
+      <div class="s-info"><div class="s-t">Clear Data</div><div class="s-d">Remove everything</div></div>
+      <div class="s-ctrl"><button class="s-btn s-btn-r" onclick="clearAll()">Clear</button></div>
+    </div>
+  </div>
+
+  <!-- Install Guide -->
+  <div class="guide-card">
+    <div class="guide-t">📲 Install on Android (Chrome)</div>
+    <div class="g-step"><div class="g-num">1</div><div class="g-txt">Open this file in <b>Chrome</b> on your Android phone</div></div>
+    <div class="g-step"><div class="g-num">2</div><div class="g-txt">Tap the <b>⋮ menu</b> (3 dots, top right corner)</div></div>
+    <div class="g-step"><div class="g-num">3</div><div class="g-txt">Tap <b>"Add to Home Screen"</b> or <b>"Install App"</b></div></div>
+    <div class="g-step"><div class="g-num">4</div><div class="g-txt">Tap <b>Install</b> — Spendly now lives on your home screen!</div></div>
+    <div style="margin-top:4px;padding:10px;background:rgba(255,214,10,0.06);border:1px solid rgba(255,214,10,0.12);border-radius:10px;">
+      <div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:3px;">💡 Tip</div>
+      <div style="font-size:11px;color:var(--text2);line-height:1.5">If you don't see "Add to Home Screen", look for a small <b>install icon</b> (⊕) in the Chrome address bar.</div>
+    </div>
+  </div>
+
+  <div class="guide-card" style="margin-top:-2px">
+    <div class="guide-t" style="color:var(--sky)">🍎 Install on iPhone (Safari)</div>
+    <div class="g-step"><div class="g-num" style="background:var(--sky)">1</div><div class="g-txt">Open this file in <b>Safari</b> (not Chrome) on iPhone</div></div>
+    <div class="g-step"><div class="g-num" style="background:var(--sky)">2</div><div class="g-txt">Tap the <b>Share button</b> 📤 at the bottom</div></div>
+    <div class="g-step"><div class="g-num" style="background:var(--sky)">3</div><div class="g-txt">Scroll down → tap <b>"Add to Home Screen"</b></div></div>
+    <div class="g-step"><div class="g-num" style="background:var(--sky)">4</div><div class="g-txt">Tap <b>Add</b> — done! 🎉</div></div>
+  </div>
+
+  <div style="text-align:center;padding:14px;font-size:11px;color:var(--text3)">Spendly v3.0 · All data stored locally on device</div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ADD SHEET
+════════════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="maybeClose(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-title">New Transaction</div>
+
+    <!-- Type -->
+    <div class="type-tog">
+      <button class="t-btn exp-on" id="tExp" onclick="setType('expense')">📤 Expense</button>
+      <button class="t-btn" id="tInc" onclick="setType('income')">📥 Income</button>
+    </div>
+
+    <!-- Amount -->
+    <div class="amt-slab">
+      <div class="amt-cur" id="aCur">₹</div>
+      <div class="amt-num e" id="aNum">0</div>
+    </div>
+
+    <!-- Numpad -->
+    <div class="numpad">
+      <button class="n-btn" onclick="nd('1')">1</button>
+      <button class="n-btn" onclick="nd('2')">2</button>
+      <button class="n-btn" onclick="nd('3')">3</button>
+      <button class="n-btn" onclick="nd('4')">4</button>
+      <button class="n-btn" onclick="nd('5')">5</button>
+      <button class="n-btn" onclick="nd('6')">6</button>
+      <button class="n-btn" onclick="nd('7')">7</button>
+      <button class="n-btn" onclick="nd('8')">8</button>
+      <button class="n-btn" onclick="nd('9')">9</button>
+      <button class="n-btn n-dot" onclick="nd('.')">·</button>
+      <button class="n-btn n-zero" onclick="nd('0')">0</button>
+      <button class="n-btn n-del" onclick="nDel()">⌫</button>
+    </div>
+
+    <!-- Description -->
+    <div class="f-group">
+      <label class="f-lbl">What was it?</label>
+      <input class="f-inp" type="text" id="descInp" placeholder="Coffee, Rent, Salary…" maxlength="40">
+    </div>
+
+    <!-- Category -->
+    <div class="f-group">
+      <label class="f-lbl">Category</label>
+      <div class="cat-g" id="catG"></div>
+    </div>
+
+    <!-- Date -->
+    <div class="f-group">
+      <label class="f-lbl">Date</label>
+      <div class="date-chips">
+        <button class="d-chip on" id="dToday" onclick="setDate('today')">Today</button>
+        <button class="d-chip" id="dYest" onclick="setDate('yesterday')">Yesterday</button>
+        <input class="d-inp" type="date" id="dInp" style="flex:1">
+      </div>
+    </div>
+
+    <button class="add-btn" onclick="addTx()">Add Transaction</button>
+    <div style="height:4px"></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fabBtn" onclick="openSheet()">+</button>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="n-tab on" id="nt-home" onclick="goPage('home')">
+    <span class="n-ico">🏠</span><span class="n-lbl">Home</span>
+  </button>
+  <button class="n-tab" id="nt-stats" onclick="goPage('stats')">
+    <span class="n-ico">📊</span><span class="n-lbl">Stats</span>
+  </button>
+  <button class="n-tab" id="nt-settings" onclick="goPage('settings')">
+    <span class="n-ico">⚙️</span><span class="n-lbl">Settings</span>
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   INLINE MANIFEST — makes Chrome offer "Add to Home Screen"
+   ═══════════════════════════════════════════════════ */
+(function(){
+  const manifest = {
+    name:"Spendly — Expense Tracker",
+    short_name:"Spendly",
+    description:"Premium AMOLED expense tracker",
+    start_url:"./",
+    display:"standalone",
+    background_color:"#000000",
+    theme_color:"#000000",
+    orientation:"portrait-primary",
+    icons:[
+      {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23000'/%3E%3Crect x='40' y='40' width='432' height='432' rx='90' fill='%23101010'/%3E%3Ccircle cx='256' cy='256' r='140' fill='%2300F5A0' opacity='.08'/%3E%3Ctext x='256' y='310' text-anchor='middle' fill='%2300F5A0' font-size='160' font-family='monospace' font-weight='900'%3E₹%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"},
+      {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%23000'/%3E%3Crect x='14' y='14' width='164' height='164' rx='34' fill='%23101010'/%3E%3Ccircle cx='96' cy='96' r='52' fill='%2300F5A0' opacity='.08'/%3E%3Ctext x='96' y='116' text-anchor='middle' fill='%2300F5A0' font-size='60' font-family='monospace' font-weight='900'%3E₹%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"}
+    ],
+    shortcuts:[
+      {name:"Add Expense",url:"./",description:"Quick add expense"},
+      {name:"View Stats",url:"./",description:"Check analytics"}
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const url = URL.createObjectURL(blob);
+  document.getElementById('manifest-placeholder').setAttribute('href', url);
+})();
+
+/* ═══════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════ */
+let txns   = JSON.parse(localStorage.getItem('sp3_txns') || '[]');
+let budget = parseFloat(localStorage.getItem('sp3_budget') || '0');
+let cur    = localStorage.getItem('sp3_cur') || '₹';
+let txType = 'expense';
+let txAmt  = '';
+let txCat  = '🍔 Food';
+let dMode  = 'today';
+let fCat   = 'All';
+let deferredPrompt = null;
+
+const CATS = [
+  {e:'🍔',n:'Food'},
+  {e:'🚗',n:'Transport'},
+  {e:'🛍️',n:'Shopping'},
+  {e:'🎮',n:'Fun'},
+  {e:'💊',n:'Health'},
+  {e:'📚',n:'Study'},
+  {e:'🏠',n:'Housing'},
+  {e:'💡',n:'Bills'},
+  {e:'💰',n:'Salary'},
+  {e:'🎁',n:'Other'},
+];
+const COLORS = ['#00F5A0','#FF4D6D','#38BDF8','#FFD60A','#B57BEE','#FB923C','#F472B6','#34D399','#A78BFA','#6B7280'];
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+function fmt(n){ return cur + Math.abs(n).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function yestStr(){ const d=new Date();d.setDate(d.getDate()-1);return d.toISOString().split('T')[0]; }
+function monthPfx(){ const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function mTxns(){ const m=monthPfx();return txns.filter(t=>t.date.startsWith(m)); }
+
+function toast(msg,emoji=''){
+  const el=$('toast');el.textContent=emoji?`${emoji} ${msg}`:msg;
+  el.classList.add('show');clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+function animNum(el,val,prefix=''){
+  const dur=700,start=Date.now();
+  const tick=()=>{
+    const p=Math.min((Date.now()-start)/dur,1);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=prefix+cur+Math.round(val*ease).toLocaleString('en-IN');
+    if(p<1)requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function greeting(){
+  const h=new Date().getHours();
+  if(h<12)return'GOOD MORNING';if(h<17)return'GOOD AFTERNOON';return'GOOD EVENING';
+}
+
+/* ═══════════════════════════════════════════════════
+   PAGES
+   ═══════════════════════════════════════════════════ */
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.n-tab').forEach(n=>n.classList.remove('on'));
+  $('pg-'+name).classList.add('active');
+  $('nt-'+name).classList.add('on');
+  if(name==='stats')renderStats();
+  if(name==='settings'){$('budInput').value=budget||'';$('curSel').value=cur;}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════════
+   SHEET
+   ═══════════════════════════════════════════════════ */
+function openSheet(){
+  $('overlay').classList.add('show');
+  txAmt='';$('aNum').textContent='0';
+  $('descInp').value='';
+  $('dInp').value=todayStr();
+  setDate('today');
+  setType('expense');
+  renderCatG();
+  setTimeout(()=>$('descInp').focus(),500);
+}
+function maybeClose(e){if(e.target.id==='overlay')closeSheet();}
+function closeSheet(){$('overlay').classList.remove('show');}
+
+function setType(t){
+  txType=t;
+  $('tExp').className='t-btn'+(t==='expense'?' exp-on':'');
+  $('tInc').className='t-btn'+(t==='income'?' inc-on':'');
+  $('aNum').className='amt-num '+(t==='expense'?'e':'i');
+  txCat=t==='income'?'💰 Salary':'🍔 Food';
+  renderCatG();
+}
+
+/* Numpad */
+function nd(v){
+  if(v==='.'&&txAmt.includes('.'))return;
+  if(txAmt.length>=10)return;
+  txAmt=(txAmt===''&&v==='.')?'0.':((txAmt==='0'&&v!='.')?v:txAmt+v);
+  $('aNum').textContent=txAmt||'0';
+  $('aNum').style.transform='scale(1.04)';
+  setTimeout(()=>$('aNum').style.transform='',90);
+}
+function nDel(){txAmt=txAmt.slice(0,-1);$('aNum').textContent=txAmt||'0';}
+
+/* Date */
+function setDate(mode){
+  dMode=mode;
+  $('dToday').className='d-chip'+(mode==='today'?' on':'');
+  $('dYest').className='d-chip'+(mode==='yesterday'?' on':'');
+  $('dInp').value=mode==='today'?todayStr():yestStr();
+}
+
+/* Category grid */
+function renderCatG(){
+  $('catG').innerHTML=CATS.map((c,i)=>{
+    const key=c.e+' '+c.n;
+    const on=txCat===key?' on':'';
+    return`<button class="c-btn${on}" onclick="selCat('${key}')"><span class="ci">${c.e}</span><span class="cn">${c.n}</span></button>`;
+  }).join('');
+}
+function selCat(k){txCat=k;renderCatG();}
+
+/* ═══════════════════════════════════════════════════
+   ADD TRANSACTION
+   ═══════════════════════════════════════════════════ */
+function addTx(){
+  const amt=parseFloat(txAmt);
+  const desc=$('descInp').value.trim();
+  if(!amt||amt<=0){toast('Enter an amount','⚠️');return;}
+  if(!desc){toast('Enter a description','⚠️');return;}
+  const date=$('dInp').value||todayStr();
+  txns.unshift({id:Date.now(),type:txType,amount:amt,desc,cat:txCat,date});
+  localStorage.setItem('sp3_txns',JSON.stringify(txns));
+  closeSheet();
+  renderHome();
+  toast(txType==='expense'?'Expense added':'Income added', txType==='expense'?'💸':'💰');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER HOME
+   ═══════════════════════════════════════════════════ */
+function renderHome(){
+  const mt=mTxns();
+  const inc=mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const bal=inc-exp;
+  const expTxns=mt.filter(t=>t.type==='expense');
+  const todayExp=txns.filter(t=>t.date===todayStr()&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+
+  // Hero
+  $('greeting').textContent=greeting();
+  animNum($('heroAmt'),Math.abs(bal));
+  $('heroAmt').style.color=bal===0?'var(--text)':bal>0?'var(--emerald)':'var(--coral)';
+  const changeStr=mt.length===0?'No transactions this month':`${mt.length} transaction${mt.length>1?'s':''} this month`;
+  $('heroSub').innerHTML=changeStr;
+  animNum($('h-inc'),inc);
+  animNum($('h-exp'),exp);
+
+  // Quick chips
+  $('q-txn').textContent=mt.length;
+  const avg=expTxns.length?exp/expTxns.length:0;
+  $('q-avg').textContent=fmt(avg);
+  $('q-day').textContent=fmt(todayExp);
+
+  // Budget
+  if(budget>0){
+    $('budCard').style.display='flex';
+    const pct=Math.min((exp/budget)*100,100);
+    const col=pct<60?'var(--emerald)':pct<85?'var(--gold)':'var(--coral)';
+    const circ=163.4;
+    $('ringCircle').style.strokeDashoffset=circ-(circ*pct/100);
+    $('ringCircle').style.stroke=col;
+    $('ringPct').textContent=pct.toFixed(0)+'%';
+    $('ringTitle').textContent=`${fmt(exp)} of ${fmt(budget)}`;
+    $('ringSub').textContent=`${(budget-exp)>0?fmt(budget-exp)+' left':'Over budget!'}`;
+    $('ringBar').style.width=pct+'%';
+    $('ringBar').style.background=col;
+  } else {
+    $('budCard').style.display='none';
+  }
+
+  // Pills
+  const cats=['All',...CATS.map(c=>c.e+' '+c.n)];
+  $('pillScroll').innerHTML=cats.map(c=>`<button class="cat-pill-btn${c===fCat?' on':''}" onclick="setFCat('${c}')">${c}</button>`).join('');
+
+  // Transactions
+  const filtered=fCat==='All'?mt:mt.filter(t=>t.cat===fCat);
+  if(!filtered.length){
+    $('txWrap').innerHTML=`<div class="empty-wrap">
+      <div class="empty-anim">✨</div>
+      <div class="empty-h">All clear!</div>
+      <div class="empty-p">No transactions yet.<br>Tap <b>+</b> to record one.</div>
+    </div>`;
+    return;
+  }
+  $('txWrap').innerHTML=filtered.slice(0,50).map((t,i)=>{
+    const idx=CATS.findIndex(c=>c.e+' '+c.n===t.cat);
+    const col=COLORS[idx]??'#6B7280';
+    const icon=t.cat.split(' ')[0];
+    const sign=t.type==='expense'?'-':'+';
+    const cls=t.type==='expense'?'neg':'pos';
+    const expCls=t.type==='expense'?'exp':'inc';
+    const dObj=new Date(t.date);
+    const dStr=dObj.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+    return`<div class="tx-item ${expCls}" style="animation:fadeUp 0.35s ease ${i*0.04}s both" onclick="deleteTx(${t.id})">
+      <div class="tx-icon-wrap" style="background:${col}18">${icon}</div>
+      <div class="tx-body">
+        <div class="tx-name">${t.desc}</div>
+        <div class="tx-sub"><span>${t.cat}</span><span class="tx-dot"></span><span>${dStr}</span></div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amt ${cls}">${sign}${fmt(t.amount)}</div>
+        <div class="tx-time">${t.date===todayStr()?'Today':t.date===yestStr()?'Yesterday':dStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFCat(c){fCat=c;renderHome();}
+
+function deleteTx(id){
+  if(!confirm('Delete this transaction?'))return;
+  txns=txns.filter(t=>t.id!==id);
+  localStorage.setItem('sp3_txns',JSON.stringify(txns));
+  renderHome();
+  toast('Deleted','🗑️');
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDER STATS
+   ═══════════════════════════════════════════════════ */
+function renderStats(){
+  const mt=mTxns();
+  const inc=mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=mt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const expT=mt.filter(t=>t.type==='expense');
+  const avg=expT.length?exp/expT.length:0;
+  const max=expT.reduce((m,t)=>Math.max(m,t.amount),0);
+  const savings=Math.max(inc-exp,0);
+
+  $('statCards').innerHTML=[
+    {l:'Total Spent',v:fmt(exp),c:'var(--coral)',sub:expT.length+' transactions'},
+    {l:'Total Income',v:fmt(inc),c:'var(--emerald)',sub:'This month'},
+    {l:'Avg Expense',v:fmt(avg),c:'var(--sky)',sub:'Per transaction'},
+    {l:'Savings',v:fmt(savings),c:'var(--gold)',sub:inc>0?(((savings/inc)*100).toFixed(0)+'% saved'):'—'},
+  ].map((s,i)=>`<div class="sc" style="animation-delay:${i*0.07}s">
+    <div style="position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;background:${s.c};opacity:0.06;"></div>
+    <div class="sl">${s.l}</div>
+    <div class="sv" style="color:${s.c}">${s.v}</div>
+    <div class="ss">${s.sub}</div>
+  </div>`).join('');
+
+  // 7-day bars
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const lbl=d.toLocaleDateString('en',{weekday:'short'}).slice(0,3);
+    const tot=txns.filter(t=>t.date===ds&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    days.push({lbl,tot,isT:i===0,ds});
+  }
+  const maxD=Math.max(...days.map(d=>d.tot),1);
+  $('barsHost').innerHTML=days.map(d=>{
+    const h=Math.max((d.tot/maxD)*88,4);
+    const col=d.isT?'rgba(255,255,255,0.9)':`linear-gradient(180deg,${d.tot>0?'var(--emerald)':'var(--ink4)'},${d.tot>0?'rgba(0,245,160,0.3)':'var(--ink3)'})`;
+    return`<div class="bar-c">
+      <div class="bar-b${d.isT?' is-today':''}" style="height:${h}px;background:${col}"></div>
+    </div>`;
+  }).join('');
+  $('barDays').innerHTML=days.map(d=>`<span style="flex:1;font-size:9px;color:${d.isT?'var(--text2)':'var(--text3)'};text-align:center;font-family:'JetBrains Mono',monospace;font-weight:${d.isT?700:400}">${d.lbl}</span>`).join('');
+
+  // Donut
+  const catTot={};
+  expT.forEach(t=>{catTot[t.cat]=(catTot[t.cat]||0)+t.amount;});
+  const sorted=Object.entries(catTot).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const total=sorted.reduce((s,[,v])=>s+v,0)||1;
+  const r=38,C=2*Math.PI*r;
+  if(!sorted.length){
+    $('donutSvg').innerHTML=`<circle cx="50" cy="50" r="38" fill="none" stroke="var(--ink3)" stroke-width="12"/>`;
+    $('dLegend').innerHTML=`<div style="font-size:12px;color:var(--text3)">No expense data</div>`;
+  } else {
+    let off=0;
+    let svgParts=`<circle cx="50" cy="50" r="38" fill="none" stroke="var(--ink2)" stroke-width="12"/>`;
+    sorted.forEach(([cat,amt],i)=>{
+      const frac=amt/total;
+      const dash=frac*C,gap=C-dash;
+      svgParts+=`<circle cx="50" cy="50" r="38" fill="none"
+        stroke="${COLORS[i]}" stroke-width="12"
+        stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+        stroke-dashoffset="${(-off+C*0.25).toFixed(2)}"
+        stroke-linecap="butt"/>`;
+      off+=dash;
+    });
+    $('donutSvg').innerHTML=svgParts;
+    $('dLegend').innerHTML=sorted.map(([cat,amt],i)=>`
+      <div class="d-row">
+        <div class="d-dot" style="background:${COLORS[i]}"></div>
+        <div class="d-name">${cat}</div>
+        <div class="d-pct">${((amt/total)*100).toFixed(0)}%</div>
+      </div>`).join('');
+  }
+
+  // 30-day trend line
+  const pts=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const v=txns.filter(t=>t.date===ds&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    pts.push(v);
+  }
+  const maxP=Math.max(...pts,1);
+  const w=300,h=70,pad=4;
+  const coords=pts.map((v,i)=>{
+    const x=(i/(pts.length-1))*(w-pad*2)+pad;
+    const y=h-pad-(v/maxP)*(h-pad*2);
+    return`${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const polyline=coords.join(' ');
+  const areaCoords=`${pad},${h} ${polyline} ${w-pad},${h}`;
+  $('trendSvg').innerHTML=`
+    <defs>
+      <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--emerald)" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="var(--emerald)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${areaCoords}" fill="url(#tg)"/>
+    <polyline points="${polyline}" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS
+   ═══════════════════════════════════════════════════ */
+function saveBudget(){
+  budget=parseFloat($('budInput').value)||0;
+  localStorage.setItem('sp3_budget',budget);
+  renderHome();toast('Budget saved','✅');
+}
+function saveCur(){
+  cur=$('curSel').value;
+  localStorage.setItem('sp3_cur',cur);
+  $('aCur').textContent=cur;
+  renderHome();toast('Currency updated','✅');
+}
+function clearAll(){
+  if(!confirm('Delete ALL transactions? Cannot be undone.'))return;
+  txns=[];localStorage.setItem('sp3_txns',JSON.stringify(txns));
+  renderHome();toast('All data cleared','🗑️');
+}
+function exportCSV(){
+  if(!txns.length){toast('No data','⚠️');return;}
+  const rows=[['Date','Type','Category','Description','Amount']];
+  txns.forEach(t=>rows.push([t.date,t.type,t.cat,t.desc,t.amount]));
+  const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='spendly-export.csv';a.click();
+  toast('CSV exported','📁');
+}
+
+/* ═══════════════════════════════════════════════════
+   PWA INSTALL
+   ═══════════════════════════════════════════════════ */
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  $('installBanner').classList.add('show');
+});
+$('installBtn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted')toast('App installed! 🎉');
+  deferredPrompt=null;
+  $('installBanner').classList.remove('show');
+});
+window.addEventListener('appinstalled',()=>{
+  $('installBanner').classList.remove('show');
+  toast('Spendly installed!','🎊');
+});
+
+/* ═══════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════ */
+// Month chip
+(()=>{
+  const d=new Date();
+  $('mChip').textContent=d.toLocaleString('en',{month:'short'}).toUpperCase()+' '+d.getFullYear();
+})();
+
+renderHome();
+renderCatG();
+$('dInp').value=todayStr();
+
+// Splash
+setTimeout(()=>{
+  $('splash').classList.add('gone');
+  setTimeout(()=>$('splash').remove(),800);
+},1600);
+
+// Register SW inline
+if('serviceWorker' in navigator){
+  const swCode=`
+    const C='sp3-v1';
+    self.addEventListener('install',e=>{self.skipWaiting();});
+    self.addEventListener('activate',e=>{self.clients.claim();});
+    self.addEventListener('fetch',e=>{
+      e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+    });
+  `;
+  const blob=new Blob([swCode],{type:'text/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob),{scope:'./'}).catch(()=>{});
+}
+</script>
+</body>
+</html>
