@@ -630,6 +630,74 @@ body::before{
   0%{background-position:-200% center;}
   100%{background-position:200% center;}
 }
+   }
+
+/* ═══════════════════════════════════════════════════
+   QUICK ADD WIDGET STYLES
+   ═══════════════════════════════════════════════════ */
+.quick-widget-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  display:flex;align-items:flex-end;justify-content:center;
+  z-index:9998;animation:slideUp 0.3s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+.quick-widget-card{
+  background:var(--ink2);border:1px solid var(--line2);
+  border-radius:20px 20px 0 0;
+  width:100%;max-width:100%;
+  padding:20px;padding-bottom:calc(20px + var(--safe-b));
+  box-shadow:0 -8px 32px rgba(0,0,0,0.6);
+}
+
+.qw-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:16px;
+}
+.qw-header h3{font-size:18px;font-weight:700;color:var(--text);}
+.qw-close{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--ink3);border:1px solid var(--line);
+  color:var(--text);font-size:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.qw-close:active{background:var(--ink4);}
+
+.qw-body{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.qw-input{
+  width:100%;padding:14px 14px;
+  background:var(--ink3);border:1px solid var(--line2);
+  border-radius:12px;color:var(--text);font-size:16px;
+  outline:none;transition:border-color 0.2s;
+}
+.qw-input:focus{border-color:var(--emerald);}
+.qw-input::placeholder{color:var(--text3);}
+
+.qw-amount-wrap{
+  position:relative;display:flex;align-items:center;
+}
+.qw-rupee{
+  position:absolute;left:14px;font-size:18px;
+  font-weight:700;color:var(--emerald);font-family:'JetBrains Mono',monospace;
+}
+.qw-amount-input{padding-left:42px !important;}
+
+.qw-footer{display:flex;gap:10px;}
+.qw-btn-submit,.qw-btn-cancel{
+  flex:1;padding:14px;border-radius:12px;
+  font-size:15px;font-weight:700;
+  transition:transform 0.15s,opacity 0.15s;
+}
+.qw-btn-submit{
+  background:var(--emerald);color:#000;
+}
+.qw-btn-submit:active{transform:scale(0.96);opacity:0.9;}
+.qw-btn-cancel{
+  background:var(--ink3);color:var(--text);border:1px solid var(--line);
+}
+.qw-btn-cancel:active{background:var(--ink4);}
 </style>
 </head>
 <body>
@@ -1334,7 +1402,111 @@ setTimeout(()=>{
   $('splash').classList.add('gone');
   setTimeout(()=>$('splash').remove(),800);
 },1600);
+/* ═══════════════════════════════════════════════════
+   BACK-TAP DOUBLE-TAP DETECTION + MINIMAL WIDGET
+   ═══════════════════════════════════════════════════ */
 
+// Request accelerometer permission (Android 13+)
+if(typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+  DeviceMotionEvent.requestPermission()
+    .then(permissionState=>{
+      if(permissionState==='granted'){
+        window.addEventListener('devicemotion',detectBackTap);
+      }
+    })
+    .catch(console.error);
+} else {
+  // Android 12 and below - no permission needed
+  window.addEventListener('devicemotion',detectBackTap);
+}
+
+let lastBackTap=0,backTapCount=0;
+function detectBackTap(e){
+  const acc=e.acceleration;
+  if(!acc)return;
+  
+  // High acceleration on Z-axis = back tap detected
+  const zForce=Math.abs(acc.z);
+  if(zForce>50){ // Threshold for back tap
+    const now=Date.now();
+    if(now-lastBackTap<400){
+      backTapCount++;
+      if(backTapCount===2){
+        openQuickAddWidget();
+        backTapCount=0;
+      }
+    } else {
+      backTapCount=1;
+    }
+    lastBackTap=now;
+  }
+}
+
+// Minimal Quick Add Widget
+function openQuickAddWidget(){
+  const widgetHTML=`
+    <div id="quickWidget" class="quick-widget-overlay">
+      <div class="quick-widget-card">
+        <div class="qw-header">
+          <h3>Quick Add</h3>
+          <button class="qw-close" onclick="closeQuickWidget()">✕</button>
+        </div>
+        <div class="qw-body">
+          <input type="text" id="qwExpenseName" placeholder="Expense name" class="qw-input">
+          <div class="qw-amount-wrap">
+            <span class="qw-rupee">₹</span>
+            <input type="number" id="qwAmount" placeholder="0" class="qw-input qw-amount-input" step="0.01">
+          </div>
+        </div>
+        <div class="qw-footer">
+          <button class="qw-btn-submit" onclick="saveQuickExpense()">Save</button>
+          <button class="qw-btn-cancel" onclick="closeQuickWidget()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const container=document.createElement('div');
+  container.innerHTML=widgetHTML;
+  document.body.appendChild(container);
+  
+  // Auto-focus on expense name
+  setTimeout(()=>$('qwExpenseName').focus(),100);
+}
+
+function saveQuickExpense(){
+  const name=$('qwExpenseName').value.trim();
+  const amount=parseFloat($('qwAmount').value)||0;
+  
+  if(!name||amount<=0){
+    toast('Fill all fields','⚠️');
+    return;
+  }
+  
+  // Add transaction
+  const tx={
+    id:Date.now(),
+    date:todayStr(),
+    type:'expense',
+    cat:'Other', // Default category
+    desc:name,
+    amount:amount
+  };
+  
+  txns.push(tx);
+  localStorage.setItem('sp3_txns',JSON.stringify(txns));
+  
+  // Close widget & refresh
+  closeQuickWidget();
+  renderHome();
+  toast(`₹${amount} saved!`,'✅');
+}
+
+function closeQuickWidget(){
+  const widget=document.querySelector('#quickWidget');
+  if(widget)widget.parentElement.remove();
+}
+   
 // Register SW inline
 if('serviceWorker' in navigator){
   const swCode=`
